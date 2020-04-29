@@ -37,4 +37,4 @@ process.on('unhandledRejection', err => {
 });
 
 // Establish database Connection
-dbConf();
+// dbConf();
