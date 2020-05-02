@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-const hackerSchema = mongoose.Schema({
+const userSchema = mongoose.Schema({
     first_name: {
         type: String,
         required: [true, 'First name is required!'],
@@ -99,10 +99,6 @@ const hackerSchema = mongoose.Schema({
         enum: ['PENDING', 'VERIFIED'],
         default: 'PENDING',
     },
-    reputation: {
-        type: Number,
-        default: 0,
-    },
     reset_token: {
         type: String,
     },
@@ -111,7 +107,7 @@ const hackerSchema = mongoose.Schema({
     },
 });
 
-hackerSchema.pre('save', function (next) {
+userSchema.pre('save', function (next) {
     if (this.isModified('password')) {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(this.password, salt);
@@ -120,11 +116,11 @@ hackerSchema.pre('save', function (next) {
     next();
 });
 
-hackerSchema.methods.isMatchedPassword = function (verifyPassword) {
+userSchema.methods.isMatchedPassword = function (verifyPassword) {
     return bcrypt.compareSync(verifyPassword, this.password);
 };
 
-hackerSchema.methods.getSignedJWTToken = function () {
+userSchema.methods.getSignedJWTToken = function () {
     const payload = {
         hackerId: this._id,
         status: this.status,
@@ -135,9 +131,9 @@ hackerSchema.methods.getSignedJWTToken = function () {
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, options);
 };
 
-hackerSchema.methods.setResetToken = function () {
+userSchema.methods.setResetToken = function () {
     this.reset_token = crypto.randomBytes(20).toString('hex');
     this.reset_expires = Date.now() + 1800000;
 };
 
-module.exports = mongoose.model('Hacker', hackerSchema);
+module.exports = mongoose.model('User', userSchema);
