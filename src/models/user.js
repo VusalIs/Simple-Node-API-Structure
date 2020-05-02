@@ -122,7 +122,7 @@ userSchema.methods.isMatchedPassword = function (verifyPassword) {
 
 userSchema.methods.getSignedJWTToken = function () {
     const payload = {
-        hackerId: this._id,
+        userId: this._id,
         status: this.status,
     };
     const options = {
